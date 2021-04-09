@@ -7,12 +7,14 @@ ENV TZ Asia/Shanghai
 
 RUN dpkg --add-architecture i386 && \
     apt-get -y update && \
+    apt-get -y upgrade && \
     apt install -y \
     libc6:i386 \
     libc6-dbg:i386 \
     libc6-dbg \
     lib32stdc++6 \
     g++-multilib \
+    sudo \
     cmake \
     ipython3 \
     vim \
@@ -113,5 +115,11 @@ COPY --from=skysider/glibc_builder32:2.27 /glibc/2.27/32 /glibc/2.27/32
 COPY linux_server linux_server64  /ctf/
 
 RUN chmod a+x /ctf/linux_server /ctf/linux_server64
+
+RUN groupadd -g 1000 pwn && \
+    useradd -r -u 1000 -g pwn pwn
+
+USER pwn
+
 
 CMD ["/sbin/my_init"]
