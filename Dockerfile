@@ -50,6 +50,7 @@ RUN dpkg --add-architecture i386 && \
     libpng16-16 \
     libpulse-dev \
     qemu-user \
+    qemu-system-x86 \
     libusbredirparser-dev && \
     rm -rf /var/lib/apt/list/*
 
@@ -86,6 +87,9 @@ RUN git clone --depth 1 https://github.com/scwuaptx/Pwngdb.git /root/Pwngdb && \
     cd /root/Pwngdb && cat /root/Pwngdb/.gdbinit  >> /root/.gdbinit && \
     sed -i "s?source ~/peda/peda.py?# source ~/peda/peda.py?g" /root/.gdbinit
 
+RUN git clone https://github.com/martinradev/gdb-pt-dump.git && \
+    cd gdb-pt-dump && echo "source $PWD/pt.py" >> /root/.gdbinit
+ 
 RUN git clone --depth 1 https://github.com/niklasb/libc-database.git libc-database
 
 WORKDIR /ctf/work/
@@ -119,7 +123,6 @@ RUN chmod a+x /ctf/linux_server /ctf/linux_server64
 RUN groupadd -g 1000 pwn && \
     useradd -r -u 1000 -g pwn pwn
 
-USER pwn
-
+RUN echo "pwn ALL = NOPASSWD : /usr/bin/apt-get, /usr/bin/aptitude" >> /etc/sudoers
 
 CMD ["/sbin/my_init"]
