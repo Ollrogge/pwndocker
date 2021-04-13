@@ -87,7 +87,7 @@ RUN git clone --depth 1 https://github.com/scwuaptx/Pwngdb.git /root/Pwngdb && \
     cd /root/Pwngdb && cat /root/Pwngdb/.gdbinit  >> /root/.gdbinit && \
     sed -i "s?source ~/peda/peda.py?# source ~/peda/peda.py?g" /root/.gdbinit
 
-RUN git clone https://github.com/martinradev/gdb-pt-dump.git && \
+RUN git clone https://github.com/Ollrogge/gdb-pt-dump.git && \
     cd gdb-pt-dump && echo "source $PWD/pt.py" >> /root/.gdbinit
  
 RUN git clone --depth 1 https://github.com/niklasb/libc-database.git libc-database
