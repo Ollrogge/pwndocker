@@ -51,6 +51,8 @@ RUN dpkg --add-architecture i386 && \
     libpulse-dev \
     qemu-user \
     qemu-system-x86 \
+    musl \
+    musl-tools \
     libusbredirparser-dev && \
     rm -rf /var/lib/apt/list/*
 
@@ -92,8 +94,10 @@ RUN git clone https://github.com/Ollrogge/gdb-pt-dump.git && \
  
 RUN git clone --depth 1 https://github.com/niklasb/libc-database.git libc-database
 
-WORKDIR /ctf/work/
+RUN git clone https://github.com/Ollrogge/Get_musl_headers && cd Get_musl_headers && \
+    chmod +x get_musl_headers && ./get_musl_headers
 
+WORKDIR /ctf/work/
 
 COPY --from=skysider/glibc_builder64:2.19 /glibc/2.19/64 /glibc/2.19/64
 COPY --from=skysider/glibc_builder32:2.19 /glibc/2.19/32 /glibc/2.19/32
