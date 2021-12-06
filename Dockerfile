@@ -51,6 +51,8 @@ RUN dpkg --add-architecture i386 && \
     libpulse-dev \
     qemu-user \
     qemu-system-x86 \
+    musl-tools \
+    gcc-arm-none-eabi \
     libusbredirparser-dev && \
     rm -rf /var/lib/apt/list/*
 
@@ -123,6 +125,6 @@ RUN chmod a+x /ctf/linux_server /ctf/linux_server64
 RUN groupadd -g 1000 pwn && \
     useradd -r -u 1000 -g pwn pwn
 
-RUN echo "pwn ALL = NOPASSWD : /usr/bin/apt-get, /usr/bin/aptitude" >> /etc/sudoers
+RUN echo "pwn ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 CMD ["/sbin/my_init"]
