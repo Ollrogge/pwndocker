@@ -52,13 +52,14 @@ RUN dpkg --add-architecture i386 && \
     qemu-user \
     qemu-system-x86 \
     musl-tools \
+    musl \
     gcc-arm-none-eabi \
     libusbredirparser-dev && \
     rm -rf /var/lib/apt/list/*
 
 RUN ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && \
     dpkg-reconfigure -f noninteractive tzdata
-    
+
 RUN wget https://github.com/radareorg/radare2/releases/download/4.4.0/radare2_4.4.0_amd64.deb && \
     dpkg -i radare2_4.4.0_amd64.deb && rm radare2_4.4.0_amd64.deb
 
@@ -91,11 +92,13 @@ RUN git clone --depth 1 https://github.com/scwuaptx/Pwngdb.git /root/Pwngdb && \
 
 RUN git clone https://github.com/Ollrogge/gdb-pt-dump.git && \
     cd gdb-pt-dump && echo "source $PWD/pt.py" >> /root/.gdbinit
- 
+
 RUN git clone --depth 1 https://github.com/niklasb/libc-database.git libc-database
 
-WORKDIR /ctf/work/
+RUN git clone https://github.com/Ollrogge/Get_musl_headers && cd Get_musl_headers && \
+    chmod +x get_musl_headers && ./get_musl_headers
 
+WORKDIR /ctf/work/
 
 COPY --from=skysider/glibc_builder64:2.19 /glibc/2.19/64 /glibc/2.19/64
 COPY --from=skysider/glibc_builder32:2.19 /glibc/2.19/32 /glibc/2.19/32
