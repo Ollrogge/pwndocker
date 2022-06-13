@@ -1,5 +1,5 @@
 FROM phusion/baseimage:master-amd64
-MAINTAINER skysider <skysider@163.com>
+LABEL maintainer="skysider <skysider@163.com>"
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -67,7 +67,6 @@ RUN version=$(curl https://github.com/radareorg/radare2/releases/latest | grep -
 RUN python3 -m pip install -U pip && \
     pip3 install --no-cache-dir \
     ropgadget \
-    pwntools \
     z3-solver \
     smmap2 \
     apscheduler \
@@ -129,9 +128,8 @@ COPY linux_server linux_server64  /ctf/
 
 RUN chmod a+x /ctf/linux_server /ctf/linux_server64
 
-RUN groupadd -g 1000 pwn && \
-    useradd -r -u 1000 -g pwn pwn
+ARG PWNTOOLS_VERSION
 
-RUN echo "pwn ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+RUN python3 -m pip install --no-cache-dir pwntools==${PWNTOOLS_VERSION}
 
 CMD ["/sbin/my_init"]
