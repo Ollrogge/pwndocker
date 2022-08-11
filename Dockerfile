@@ -60,10 +60,6 @@ RUN dpkg --add-architecture i386 && \
 RUN ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && \
     dpkg-reconfigure -f noninteractive tzdata
 
-RUN version=$(curl https://github.com/radareorg/radare2/releases/latest | grep -P '/tag/\K.*?(?=")' -o) && \
-    wget https://github.com/radareorg/radare2/releases/download/${version}/radare2_${version}_amd64.deb && \
-    dpkg -i radare2_${version}_amd64.deb && rm radare2_${version}_amd64.deb
-
 RUN python3 -m pip install -U pip && \
     pip3 install --no-cache-dir \
     ropgadget \
@@ -89,14 +85,16 @@ RUN git clone --depth 1 https://github.com/scwuaptx/Pwngdb.git ~/Pwngdb && \
     sed -i "s?source ~/peda/peda.py?# source ~/peda/peda.py?g" .gdbinit-pwngdb && \
     echo "source ~/Pwngdb/.gdbinit-pwngdb" >> ~/.gdbinit
 
-RUN wget -O ~/.gdbinit-gef.py -q http://gef.blah.cat/py
-
 RUN git clone --depth 1 https://github.com/niklasb/libc-database.git libc-database && \
     cd libc-database && ./get ubuntu debian || echo "/libc-database/" > ~/.libcdb_path && \
     rm -rf /tmp/*
 
 RUN git clone https://github.com/Ollrogge/gdb-pt-dump.git && \
     cd gdb-pt-dump && echo "source $PWD/pt.py" >> /root/.gdbinit
+
+#RUN wget -O ~/.gdbinit-gef.py -q http://gef.blah.cat/py
+RUN wget -q https://raw.githubusercontent.com/bata24/gef/dev/install.sh -O- | sh
+RUN sed -i 's/^\(source ~\/.gdbinit-gef.py\)$/#\1/' ~/.gdbinit
 
 RUN git clone https://github.com/Ollrogge/Get_musl_headers && cd Get_musl_headers && \
     chmod +x get_musl_headers && ./get_musl_headers
@@ -130,6 +128,6 @@ RUN chmod a+x /ctf/linux_server /ctf/linux_server64
 
 ARG PWNTOOLS_VERSION
 
-RUN python3 -m pip install --no-cache-dir pwntools==${PWNTOOLS_VERSION}
+RUN python3 -m pip install --no-cache-dir pwntools
 
 CMD ["/sbin/my_init"]
