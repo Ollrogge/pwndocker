@@ -1,9 +1,7 @@
-FROM phusion/baseimage:master-amd64
-LABEL maintainer="skysider <skysider@163.com>"
+FROM ubuntu:23.04
+#FROM phusion/baseimage:master-amd64
 
 ENV DEBIAN_FRONTEND noninteractive
-
-ENV TZ Asia/Shanghai
 
 RUN dpkg --add-architecture i386 && \
     apt-get -y update && \
@@ -34,7 +32,6 @@ RUN dpkg --add-architecture i386 && \
     wget \
     gdb \
     gdb-multiarch \
-    netcat \
     socat \
     git \
     patchelf \
@@ -53,15 +50,28 @@ RUN dpkg --add-architecture i386 && \
     qemu-system-x86 \
     musl-tools \
     musl \
+    gdbserver \
     gcc-arm-none-eabi \
+    pipx \
     libusbredirparser-dev && \
     rm -rf /var/lib/apt/list/*
 
 RUN ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && \
     dpkg-reconfigure -f noninteractive tzdata
 
-RUN python3 -m pip install -U pip && \
-    pip3 install --no-cache-dir \
+#RUN pipx ensurepath && \
+#    pipx install ropgadget && \
+#    pipx install z3-solver && \
+#    pipx install ropper && \
+#    pipx install unicorn && \
+#    pipx install keystone-engine && \
+#    pipx install capstone && \
+#    pipx install angr && \
+#    pipx install pebble && \
+#    pipx install r2pipe
+
+RUN python3 -m pip install --break-system-packages -U pip && \
+    pip install --break-system-packages --no-cache-dir \
     ropgadget \
     z3-solver \
     smmap2 \
@@ -72,7 +82,8 @@ RUN python3 -m pip install -U pip && \
     capstone \
     angr \
     pebble \
-    r2pipe
+    r2pipe \
+    pwntools
 
 
 RUN gem install one_gadget seccomp-tools && rm -rf /var/lib/gems/2.*/cache/*
@@ -85,49 +96,20 @@ RUN git clone --depth 1 https://github.com/scwuaptx/Pwngdb.git ~/Pwngdb && \
     sed -i "s?source ~/peda/peda.py?# source ~/peda/peda.py?g" .gdbinit-pwngdb && \
     echo "source ~/Pwngdb/.gdbinit-pwngdb" >> ~/.gdbinit
 
-RUN git clone --depth 1 https://github.com/niklasb/libc-database.git libc-database && \
-    cd libc-database && ./get ubuntu debian || echo "/libc-database/" > ~/.libcdb_path && \
-    rm -rf /tmp/*
-
 RUN git clone https://github.com/Ollrogge/gdb-pt-dump.git && \
     cd gdb-pt-dump && echo "source $PWD/pt.py" >> /root/.gdbinit
 
 #RUN wget -O ~/.gdbinit-gef.py -q http://gef.blah.cat/py
 RUN wget -q https://raw.githubusercontent.com/bata24/gef/dev/install.sh -O- | sh
-RUN sed -i 's/^\(source ~\/.gdbinit-gef.py\)$/#\1/' ~/.gdbinit
+RUN sed -i 's/^\(source \/root\/.gdbinit-gef.py\)$/#\1/' ~/.gdbinit
 
 RUN git clone https://github.com/Ollrogge/Get_musl_headers && cd Get_musl_headers && \
     chmod +x get_musl_headers && ./get_musl_headers
 
 WORKDIR /ctf/work/
 
-COPY --from=skysider/glibc_builder64:2.19 /glibc/2.19/64 /glibc/2.19/64
-COPY --from=skysider/glibc_builder32:2.19 /glibc/2.19/32 /glibc/2.19/32
-
-COPY --from=skysider/glibc_builder64:2.23 /glibc/2.23/64 /glibc/2.23/64
-COPY --from=skysider/glibc_builder32:2.23 /glibc/2.23/32 /glibc/2.23/32
-
-COPY --from=skysider/glibc_builder64:2.24 /glibc/2.24/64 /glibc/2.24/64
-COPY --from=skysider/glibc_builder32:2.24 /glibc/2.24/32 /glibc/2.24/32
-
-COPY --from=skysider/glibc_builder64:2.28 /glibc/2.28/64 /glibc/2.28/64
-COPY --from=skysider/glibc_builder32:2.28 /glibc/2.28/32 /glibc/2.28/32
-
-COPY --from=skysider/glibc_builder64:2.29 /glibc/2.29/64 /glibc/2.29/64
-COPY --from=skysider/glibc_builder32:2.29 /glibc/2.29/32 /glibc/2.29/32
-
-COPY --from=skysider/glibc_builder64:2.30 /glibc/2.30/64 /glibc/2.30/64
-COPY --from=skysider/glibc_builder32:2.30 /glibc/2.30/32 /glibc/2.30/32
-
-COPY --from=skysider/glibc_builder64:2.27 /glibc/2.27/64 /glibc/2.27/64
-COPY --from=skysider/glibc_builder32:2.27 /glibc/2.27/32 /glibc/2.27/32
-
 COPY linux_server linux_server64  /ctf/
 
 RUN chmod a+x /ctf/linux_server /ctf/linux_server64
-
-ARG PWNTOOLS_VERSION
-
-RUN python3 -m pip install --no-cache-dir pwntools
 
 CMD ["/sbin/my_init"]
