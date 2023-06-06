@@ -1,4 +1,4 @@
-FROM ubuntu:23.04
+FROM ubuntu:mantic
 #FROM phusion/baseimage:master-amd64
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -7,9 +7,8 @@ RUN dpkg --add-architecture i386 && \
     apt-get -y update && \
     apt-get -y upgrade && \
     apt install -y \
-    libc6:i386 \
-    libc6-dbg:i386 \
     libc6-dbg \
+    gcc-multilib \
     lib32stdc++6 \
     g++-multilib \
     sudo \
